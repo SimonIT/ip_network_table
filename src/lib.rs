@@ -20,11 +20,19 @@
 //! assert_eq!(table.longest_match(ip_address), Some((network, &"foo")));
 //! ```
 
+#![no_std]
 #![warn(rust_2018_idioms)]
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
+#[cfg(feature = "alloc")]
+use alloc::boxed::Box;
+#[cfg(feature = "alloc")]
+use alloc::vec;
+use core::net::{IpAddr, Ipv4Addr, Ipv6Addr}; // forked from `treebitmap`
 use ip_network::{IpNetwork, Ipv4Network, Ipv6Network};
 use ip_network_table_deps_treebitmap::IpLookupTable;
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr}; // forked from `treebitmap`
 
 /// Table holding IPv4 and IPv6 network prefixes with value.
 #[derive(Default)]
@@ -285,6 +293,7 @@ impl<T> IpNetworkTable<T> {
     /// // Get value for network from table
     /// assert_eq!(table.matches(ip_address).count(), 1);
     /// ```
+    #[cfg(feature = "alloc")]
     pub fn matches<I: Into<IpAddr>>(
         &self,
         ip: I,
@@ -333,6 +342,7 @@ impl<T> IpNetworkTable<T> {
     /// // Get value for network from table
     /// assert_eq!(table.matches_mut(ip_address).count(), 1);
     /// ```
+    #[cfg(feature = "alloc")]
     pub fn matches_mut<I: Into<IpAddr>>(
         &mut self,
         ip: I,
@@ -471,6 +481,7 @@ impl<T> IpNetworkTable<T> {
     /// assert_eq!(table.exact_match(network_a), Some(&"foo"));
     /// assert_eq!(table.exact_match(network_b), None);
     /// ```
+    #[cfg(feature = "alloc")]
     pub fn retain<F>(&mut self, mut f: F)
     where
         F: FnMut(IpNetwork, &mut T) -> bool,
@@ -490,8 +501,8 @@ impl<T> IpNetworkTable<T> {
 #[cfg(test)]
 mod tests {
     use crate::IpNetworkTable;
+    use core::net::{Ipv4Addr, Ipv6Addr};
     use ip_network::{Ipv4Network, Ipv6Network};
-    use std::net::{Ipv4Addr, Ipv6Addr};
 
     #[test]
     fn insert_ipv4_ipv6() {
